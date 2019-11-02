@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -17,25 +16,21 @@ public class Main {
 //    private static String[] files = {"mw:loop", "mw:load", "mw:items/give_random_item"};
 
     private static final Pattern pathPattern = Pattern.compile(".*[/\\\\](.*)[/\\\\]functions[/\\\\](.*)\\.function");
-    private static final Pattern functionPathPattern = Pattern.compile("(.+)( \\d+[tsd]?)");
+    private static final Pattern functionPathPattern = Pattern.compile("(.+?)( \\d+[tsd]?)");
 
-    private static File dir = new File("C:\\Users\\Andy\\AppData\\Roaming\\.minecraft\\saves\\Missile Wars for 1.14\\datapacks\\Missile Wars\\data\\");
+    private static File dir =
+            new File(System.getenv("APPDATA") +
+                    "\\.minecraft\\saves\\Missile Wars for 1.14\\datapacks\\Missile Wars\\data\\");
 
     public static void main(String[] args) {
-        File dir = new File("C:\\Users\\Andy\\AppData\\Roaming\\.minecraft\\saves\\Missile Wars for 1.14\\datapacks\\Missile Wars\\data\\");
-
+        File dir;
+        boolean examplemode = true;
+        //noinspection ConstantConditions
+        if (!examplemode)
+            dir = new File(Main.dir.getPath());
+        else
+            dir = new File("testfiles");
         recurOverSub(dir);
-
-        /*for (String fileString : files) {
-            try {
-                McFunction mcFunction = new McFunction(file, fileString);
-                mcFunction.lines = Files.readAllLines(mcFunction.getPath());
-                mcFunction.parse();
-                mcFunction.save();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }*/
     }
 
     private static void recurOverSub(File dir) {
