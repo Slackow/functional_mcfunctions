@@ -1,0 +1,26 @@
+scoreboard players set @a money 0
+execute as @e[tag=tick] run function (
+    [('Slackow','Kihron'),('Waddledeeplays','seb_magnesium')](
+        scoreboard players set {1} 1000
+        scoreboard players set {2} 10
+    )
+    say what's up
+)
+schedule function ( mw:power 10d
+    say bruh
+)
+schedule function ( 30s
+    tellraw @a ["bruh",""]
+    [
+    ('a','b'),
+    ('c','d')
+    ](
+        say bruh {1}:{2}
+    )
+    execute as @e run schedule function ( mw:power2/m1/m4/please 3
+        say good work :)
+    )
+    execute as @e run function (
+        say this sub also works? wat the
+    )
+)
