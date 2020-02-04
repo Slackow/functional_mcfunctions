@@ -1,26 +1,61 @@
-scoreboard players set @a money 0
-execute as @e[tag=tick] run function (
-    [('Slackow','Kihron'),('Waddledeeplays','seb_magnesium')](
-        scoreboard players set {1} 1000
-        scoreboard players set {2} 10
-    )
-    say what's up
-)
-schedule function ( mw:power 10d
-    say bruh
-)
-schedule function ( 30s
-    tellraw @a ["bruh",""]
-    [
-    ('a','b'),
-    ('c','d')
-    ](
-        say bruh {1}:{2}
-    )
-    execute as @e run schedule function ( mw:power2/m1/m4/please 3
-        say good work :)
-    )
-    execute as @e run function (
-        say this sub also works? wat the
-    )
-)
+/scoreboard players set @a money 0
+/execute if score @s money matches 1.. run $function 'something' {
+    for item in [['Slackow','Kihron'],['Waddledeeplays','seb_magnesium']] {
+        /scoreboard players set ${item[0]}
+        /scoreboard players set ${item[1]}
+    } {'for', 'item', 'in'}
+}
+/other command
+var x=2;
+/$function 'lambda_example' {
+    /$function {
+        x++;
+        log 'made it !!!! $x';
+        /one_line
+    }
+    /$'mcFunction' {
+        /dude
+    }
+    /$'mcFunction' {
+        /more_test
+    }
+}
+/$function '10s' {
+    /here goes nothing
+}
+
+log x;
+if x == 1 {
+    log 'x is 1!!!!';
+} else if (x >= 3) {
+    log 'you are able to say else if?! also x is $x';
+} elif (x < 3) {
+    log 'now this is gonna be interesting';
+} else {
+    log 'x is $x';
+}
+
+
+
+
+/say what's up
+for (var i = 0;i < 4;i++) {
+    /say $i
+    /summon armor_stand ~ ~ ~ {
+        +Invisible:1b,
+        +CustomName:"\"lol\""
+    +}
+    /scoreboard players set @e[type=armor_stand,limit=1,sort=nearest,distance=..0.1] energy ${i + 1}
+}
+#hello
+//hello
+x=1+3;
+
+for i in 6:2:-2 {
+    /say $i $x
+    /execute if whatever
+}
+list = [['name',true,1],['other word',false,2]];
+for item in list.filter(l -> l[1]) {
+    /tellraw @a "${item[0]} ${item[2] + 3}"
+}
