@@ -110,7 +110,7 @@ expr
 | expr QUESTION? DOT IDEN                                                                                                # getFromObjectExpr
 | expr LPAREN (expr (COMMA expr)*)? RPAREN                                                                               # runFunctionExpr
 | expr LBRACKET expr RBRACKET                                                                                            # getItemExpr
-| expr LBRACKET range_expr RBRACKET                                                                                      # subExpr
+| expr LBRACKET expr COLON expr (COLON expr)? RBRACKET                                                                   # subExpr
 | MINUS expr                                                                                                             # negationExpr
 | NOT expr                                                                                                               # notExpr
 | expr ELVIS expr                                                                                                        # elvisExpr
@@ -145,7 +145,3 @@ string_part
 | ID_INTERP                                                                                                              # IdInterpPart
 | ENTER_EXPR_INTERP expr RBRACE                                                                                          # ExprInterpPart
 ;
-
-range_expr
-: expr COLON expr                                                                                                        # RangeExpressionNoInc
-| expr COLON expr COLON expr                                                                                             # RangeExpressionInc;

@@ -41,9 +41,9 @@ public class FunctionVisitor extends MainFunctionParserBaseVisitor<Value> {
                 ConstantLineContext context = (ConstantLineContext) class_lineContext;
                 Var_definitionContext var_definitionContext = context.var_definition();
                 if (context.INSTANCE() != null) {
-                    funClass.getInstanceVars().put(var_definitionContext.IDEN().getText(), var_definitionContext.expr());
+                    funClass.getInstanceVars().put(var_definitionContext.IDEN(0).getText(), var_definitionContext.expr());
                 } else {
-                    funClass.getProperties().put(var_definitionContext.IDEN().getText(), this.visit(var_definitionContext.expr()));
+                    funClass.getProperties().put(var_definitionContext.IDEN(0).getText(), this.visit(var_definitionContext.expr()));
                 }
             } else if (class_lineContext instanceof FunctionClassLineContext) {
                 FunctionClassLineContext context = (FunctionClassLineContext) class_lineContext;
@@ -53,7 +53,7 @@ public class FunctionVisitor extends MainFunctionParserBaseVisitor<Value> {
                 if (context.INSTANCE() != null) {
                     funClass.getInstanceFunctions().put(
                             methodName,
-                            value -> new FunFunction(idens, a -> {
+                            value -> new FunFunction(idens, input -> {
                                 try {
                                     this.visit(context.block());
                                 } catch (ReturnValue returnValue) {
@@ -67,6 +67,7 @@ public class FunctionVisitor extends MainFunctionParserBaseVisitor<Value> {
                         try {
                             this.visit(context.block());
                         } catch (ReturnValue returnValue) {
+                            // using Exceptions a little badly but whatever
                             return returnValue.getValue();
                         }
                         return VOID;
@@ -100,7 +101,24 @@ public class FunctionVisitor extends MainFunctionParserBaseVisitor<Value> {
 
     @Override
     public Value visitVar_definition(Var_definitionContext ctx) {
-        return memory.put(ctx.IDEN().getText(), this.visit(ctx.expr()));
+        Value value = this.visit(ctx.expr());
+        int size = ctx.IDEN().size();
+        if (size == 1) {
+            memory.put(ctx.IDEN(0).getText(), value);
+        } else {
+            List<String> keys = ctx.IDEN().stream().map(ParseTree::getText).collect(Collectors.toList());
+            List<Value> list = value.asList(supplier(ctx));
+
+            if (list.size() == size) {
+                for (int i = 0; i < keys.size(); i++) {
+                    memory.put(keys.get(i), list.get(i));
+                }
+            } else {
+                throw new EvalException("list different length than expected: " + list.size(), ctx);
+            }
+
+        }
+        return VOID;
     }
 
     @Override
@@ -130,7 +148,7 @@ public class FunctionVisitor extends MainFunctionParserBaseVisitor<Value> {
                 break;
         }
         memory.setProperty(id, value);
-        return value;
+        return VOID;
     }
 
     private static Supplier<EvalException> supplier(ParserRuleContext ctx) {

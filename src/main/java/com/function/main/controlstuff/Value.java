@@ -37,14 +37,25 @@ public class Value implements Comparable<Value> {
 
     public static Value valueOf(String obj) {
         Value value = new Value(obj);
-        value.getProperties().put("length", Value.valueOf(obj.length()));
-        value.getProperties().put("toNum", new FunFunction(
+        Map<String, Value> properties = value.getProperties();
+        properties.put("length", new FunFunction(
+                Collections.emptyList(),
+                values -> Value.valueOf(obj.length())
+        ));
+        properties.put("toNum", new FunFunction(
                 Collections.emptyList(),
                 values -> Value.valueOf(Double.parseDouble(obj))
         ));
-        value.getProperties().put("replace", new FunFunction(
+        properties.put("replace", new FunFunction(
                 Arrays.asList("target", "replacement"),
                 values -> Value.valueOf(obj.replace(values.get(0).asString(), values.get(1).asString()))
+        ));
+        properties.put("split", new FunFunction(
+                Collections.singletonList("delimiter"),
+                values -> {
+                    String delimiter = values.get(0).asString(null);
+                    return Value.valueOf(Arrays.stream(obj.split(delimiter)).map(Value::valueOf).collect(Collectors.toList()));
+                }
         ));
         return value;
     }
@@ -52,7 +63,10 @@ public class Value implements Comparable<Value> {
     public static Value valueOf(List<Value> obj) {
         Value value = new Value(obj);
         Map<String, Value> properties = value.getProperties();
-        properties.put("length", Value.valueOf(obj.size()));
+        properties.put("length", new FunFunction(
+                Collections.emptyList(),
+                values -> Value.valueOf(obj.size())
+        ));
         properties.put("map", new FunFunction(
                 Collections.singletonList("lambda"),
                 values -> {
@@ -93,6 +107,20 @@ public class Value implements Comparable<Value> {
                             )
                             .collect(Collectors.toList());
                     return Value.valueOf(list);
+                }
+        ));
+        properties.put("sort", new FunFunction(
+                Collections.singletonList("lambda"),
+                values -> {
+                    FunFunction lambda = values.get(0)
+                            .asFunction(() -> new RuntimeException("expected lambda: " + values.get(0)));
+                    obj.sort(
+                            Comparator.comparingInt(
+                                    val -> lambda.getFunction().apply(Collections.singletonList(val))
+                                            .asInteger(() -> new RuntimeException("expected integer: " + val))
+                            )
+                    );
+                    return VOID;
                 }
         ));
         properties.put("add", new FunFunction(
@@ -225,7 +253,13 @@ public class Value implements Comparable<Value> {
                 Collections.singletonList("value"),
                 values -> Value.valueOf(obj.contains(values.get(0)))
         ));
-
+        properties.put("join", new FunFunction(
+                Collections.singletonList("delimiter"),
+                values -> {
+                    String delimiter = values.get(0).asString(null);
+                    return Value.valueOf(obj.stream().map(Value::asString).collect(Collectors.joining(delimiter)));
+                }
+        ));
         return value;
     }
 
@@ -255,7 +289,7 @@ public class Value implements Comparable<Value> {
         this.properties = hasProperties ? new HashMap<>() : Collections.emptyMap();
     }
 
-    private Value() {
+    protected Value() {
         this.value = EMPTY;
         this.properties = Collections.emptyMap();
     }
@@ -318,6 +352,13 @@ public class Value implements Comparable<Value> {
         }
 
         return s;
+    }
+
+    public String asString(Supplier<RuntimeException> supplier) {
+        if (!isString()) {
+            throw supplier.get();
+        }
+        return (String) value;
     }
 
     private boolean isBoolean() {
