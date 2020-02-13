@@ -7,7 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
-import java.io.File;
+import java.nio.file.Paths;
 
 public class CompileUI extends Application {
 
@@ -17,7 +17,7 @@ public class CompileUI extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Parent root = FXMLLoader.load(new File("src/main/resources/fxml/CompileUI.fxml").toURI().toURL());
+        Parent root = FXMLLoader.load(Paths.get("src/main/resources/fxml/CompileUI.fxml").toUri().toURL());
         primaryStage.setTitle("Epic Mcfunction compiler");
         primaryStage.getIcons().add(new Image("file:images/icon.ico"));
         Scene scene = new Scene(root);

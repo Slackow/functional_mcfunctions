@@ -1,11 +1,10 @@
 package com.function.main.controlstuff;
 
-import com.function.main.grammar.MainFunctionParser.ExprContext;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import static com.function.main.grammar.MainFunctionParser.ExprContext;
 
 public class FunClass extends Value {
     public FunClass() {

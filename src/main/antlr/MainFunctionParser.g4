@@ -2,7 +2,7 @@ parser grammar MainFunctionParser;
 
 options { tokenVocab=FunctionLexer; }
 
-program: statement* EOF;
+program: ((TICK | LOAD) THIS SEMI)? statement* EOF;
 
 
 

@@ -23,13 +23,14 @@ public class McFunction {
     private List<String> lines;
     private Path dirLocation;
 
+    private Special special = Special.NONE;
+
     public McFunction(Path path, Path dir) {
         dirLocation = dir;
-        Path data = Paths.get(dir.toString(), "data");
-        Path path1 = data.toAbsolutePath();
-        Path pathRelative = path1.relativize(path);
+        Path data = dir.resolve("data").toAbsolutePath();
+        Path pathRelative = data.relativize(path);
         //System.out.println(pathRelative);
-        String item = pathRelative.toString().replaceFirst("\\\\functions\\\\", ":");
+        String item = pathRelative.toString().replaceFirst("\\\\functions\\\\", ":").replace('\\', '/');
         nameSpaces.push(item.substring(0, item.length() - 9));
         try {
             lines = Files.readAllLines(path);
@@ -47,7 +48,7 @@ public class McFunction {
         String contents = String.join("\n", lines);
         if (contents.startsWith("/")) {
             contents = "\n" + contents;
-            Log.warn("Warning: Errors will be one line off, add a blank line at the beginning to fix.");
+            Log.warn("Errors will be one line off, add a blank line at the beginning to fix.");
         }
         CharStream in = CharStreams.fromString(contents);
         FunctionLexer functionLexer = new FunctionLexer(in);
@@ -61,11 +62,10 @@ public class McFunction {
         functionLines.values().removeIf(list -> list.stream().allMatch(str -> str.trim().isEmpty()));
         functionLines.forEach((k, v) -> {
             //System.out.println(k + " Contents:\n\n" + String.join("\n", v));
-            v.add(0, "#Generated with https://github.com/cowslayer7890/mcfunction_lambdas");
+            v.add(0, "#Generated with https://github.com/cowslayer7890/functional_mcfunctions");
             try {
-                Path path = Paths.get(getDirLocation().toString(), "data", k.replace(":", "\\functions\\") + ".mcfunction");
-                //noinspection ResultOfMethodCallIgnored
-                path.toFile().getParentFile().mkdirs();
+                Path path = getDirLocation().resolve(Paths.get("data", k.replace(":", "\\functions\\") + ".mcfunction"));
+                Files.createDirectories(path.getParent());
                 Files.write(path, v);
                 map.put(k, path);
             } catch (IOException e) {
@@ -86,4 +86,14 @@ public class McFunction {
     public Set<String> getNamespaces() {
         return functionLines.keySet();
     }
+
+    public Special getSpecial() {
+        return special;
+    }
+
+    public void setSpecial(Special special) {
+        this.special = special;
+    }
+
+    public enum Special { TICKED, LOADED, NONE }
 }

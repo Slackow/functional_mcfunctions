@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 public class CompileUIController {
@@ -40,42 +41,47 @@ public class CompileUIController {
     }
 
     @FXML
-    public void onCompile() {
-        System.out.println("what's up");
+    public void onCompile() throws IOException {
         String textFieldText = textField.getText();
         System.out.println(textFieldText);
 
         splitPane.setDividerPosition(0, 0.5);
         splitPane2.setDividerPosition(0, 0.5);
 
-        if (Paths.get(textFieldText, "data").toFile().isDirectory()) {
-            if (Paths.get(textFieldText, "datapacks").toFile().isDirectory()) {
-                feedbackLabel.setText("Invalid Path, please select a datapack as the directory (not the world folder)");
-                feedbackLabel.setTextFill(Color.RED);
-                feedbackLabel.setVisible(true);
-                return;
+        Path source = Paths.get(textFieldText);
+
+        if (Files.isDirectory(source.resolve("data"))) {
+            Map<String, Path> allTouched;
+            Map<String, Path> allUntouched;
+            Path datapacks = source.resolve("datapacks");
+            if (Files.isDirectory(datapacks)) {
+                allTouched = new HashMap<>();
+                allUntouched = new HashMap<>();
+                Files.list(datapacks)
+                        .filter(path -> Files.isDirectory(path) && Files.isDirectory(path.resolve("data")))
+                        .forEach(dir -> {
+                            CompileStuff.compile(dir);
+                            allTouched.putAll(CompileStuff.allTouched);
+                            allUntouched.putAll(CompileStuff.allUntouched);
+                        });
+            } else {
+                CompileStuff.compile(source);
+                allTouched = CompileStuff.allTouched;
+                allUntouched = CompileStuff.allUntouched;
             }
-
-            CompileStuff.compile(new File(textFieldText));
-
-            Map<String, Path> allTouched = CompileStuff.allTouched;
-
-            Map<String, Path> allUntouched = CompileStuff.allUntouched;
-
 
             filesGeneratedListView.setItems(FXCollections.observableList(new ArrayList<>(allTouched.keySet())));
             filesNotGeneratedListView.setItems(FXCollections.observableList(new ArrayList<>(allUntouched.keySet())));
 
             feedbackLabel.setText("Compiled " + allTouched.size() + " functions at " + LocalTime.now().format(DateTimeFormatter.ofPattern("h:mm:ss")));
             feedbackLabel.setTextFill(Color.GREEN);
+            deleteAllButton.setDisable(filesNotGeneratedListView.getItems().isEmpty());
         } else {
             feedbackLabel.setText("Invalid Path, please select a datapack as the directory (not the data folder)");
             feedbackLabel.setTextFill(Color.RED);
-            feedbackLabel.setVisible(true);
-            return;
         }
         feedbackLabel.setVisible(true);
-        deleteAllButton.setDisable(filesNotGeneratedListView.getItems().size() <= 0);
+
     }
 
     @FXML
@@ -83,9 +89,9 @@ public class CompileUIController {
         CompileStuff.allUntouched.forEach((key, value) -> {
             try {
                 Files.deleteIfExists(value);
-                File dir = value.toFile().getParentFile();
-                while (dir.delete()) {
-                    dir = dir.getParentFile();
+                Path dir = value.getParent();
+                while (dir.toFile().delete()) {
+                    dir = dir.getParent();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -99,9 +105,9 @@ public class CompileUIController {
     public void onOpenDirectory() {
         DirectoryChooser directoryChooser = new DirectoryChooser();
 
-        File value = Paths.get(textField.getText()).toFile();
-        if (value.exists()) {
-            directoryChooser.setInitialDirectory(value);
+        Path value = Paths.get(textField.getText());
+        if (Files.isDirectory(value)) {
+            directoryChooser.setInitialDirectory(value.toFile());
         }
         File file = directoryChooser.showDialog(null);
         if (file != null) {

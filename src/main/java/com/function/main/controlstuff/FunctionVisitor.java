@@ -2,7 +2,6 @@ package com.function.main.controlstuff;
 
 import com.esotericsoftware.minlog.Log;
 import com.function.main.McFunction;
-import com.function.main.grammar.MainFunctionParser.*;
 import com.function.main.grammar.MainFunctionParserBaseVisitor;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -13,6 +12,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.function.main.McFunction.Special.LOADED;
+import static com.function.main.McFunction.Special.TICKED;
 import static com.function.main.controlstuff.Value.VOID;
 import static com.function.main.grammar.MainFunctionParser.*;
 
@@ -30,6 +31,21 @@ public class FunctionVisitor extends MainFunctionParserBaseVisitor<Value> {
 
     private void exitScope() {
         memory = memory.getParent();
+    }
+
+    @Override
+    public Value visitProgram(ProgramContext ctx) {
+        if (ctx.THIS() != null) {
+            if (ctx.TICK() != null) {
+                System.out.println("Ticked");
+                mcFunction.setSpecial(TICKED);
+            } else {
+                System.out.println("Loaded");
+                mcFunction.setSpecial(LOADED);
+            }
+        }
+        ctx.statement().forEach(this::visit);
+        return VOID;
     }
 
     @Override
@@ -490,24 +506,20 @@ public class FunctionVisitor extends MainFunctionParserBaseVisitor<Value> {
 
     @Override
     public Value visitSubExpr(SubExprContext ctx) {
-        Range_exprContext range_expr = ctx.range_expr();
         int begin;
         int end;
         int inc;
         Supplier<EvalException> supplier = supplier(ctx);
-        if (range_expr instanceof RangeExpressionNoIncContext) {
-            RangeExpressionNoIncContext noIncContext = (RangeExpressionNoIncContext) range_expr;
-            begin = this.visit(noIncContext.expr(0)).asInteger(supplier);
-            end = this.visit(noIncContext.expr(1)).asInteger(supplier);
+
+        begin = this.visit(ctx.expr(1)).asInteger(supplier);
+        end = this.visit(ctx.expr(2)).asInteger(supplier);
+        if (ctx.expr().size() == 3) {
             inc = begin < end ? 1 : -1;
         } else {
-            RangeExpressionIncContext incContext = (RangeExpressionIncContext) range_expr;
-            begin = this.visit(incContext.expr(0)).asInteger(supplier);
-            end = this.visit(incContext.expr(1)).asInteger(supplier);
-            inc = this.visit(incContext.expr(2)).asInteger(supplier);
+            inc = this.visit(ctx.expr(3)).asInteger(supplier);
         }
 
-        Value value = this.visit(ctx.expr());
+        Value value = this.visit(ctx.expr(0));
         if (value.isList()) {
             List<Value> list = new ArrayList<>();
             List<Value> values = value.asList(supplier);

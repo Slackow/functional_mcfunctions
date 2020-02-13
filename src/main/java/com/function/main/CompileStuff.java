@@ -1,12 +1,14 @@
 package com.function.main;
 
-import java.io.File;
+import com.esotericsoftware.minlog.Log;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class CompileStuff {
@@ -15,20 +17,59 @@ public class CompileStuff {
     static final Map<String, Path> allUntouched = new HashMap<>();
 
     public static void main(String[] args) {
-        File dir = new File("testfiles");
+        Path dir = Paths.get("testfiles");
         compile(dir);
     }
 
-    public static void compile(File dir) {
+    public static void compile(Path dir) {
         allTouched.clear();
         allUntouched.clear();
+        System.out.println();
+        Log.info("Compiling: " + dir.getFileName().toString());
+        List<McFunction> ticked = new ArrayList<>();
+        List<McFunction> loaded = new ArrayList<>();
         getAllFilesInDataPack(dir, ".function")
-                .peek(System.out::println)
-                .map(path -> new McFunction(path, dir.toPath()))
+                .peek(path -> Log.info(path.toString()))
+                .map(path -> new McFunction(path, dir))
                 .forEach(mcFunction -> {
                     mcFunction.parse();
+                    switch (mcFunction.getSpecial()) {
+                        case TICKED:
+                            ticked.add(mcFunction);
+                            break;
+                        case LOADED:
+                            loaded.add(mcFunction);
+                            break;
+                    }
                     allTouched.putAll(mcFunction.save());
                 });
+
+        if (!ticked.isEmpty()) {
+            String content = ticked.stream()
+                    .map(b -> b.getNameSpaceStack().get(0))
+                    .collect(Collectors.joining("\",\n\t\t", "{\n\t\"values\": [\n\t\t\"", "\"\n\t]\n}"));
+            try {
+
+                Path path = dir.resolve("data/minecraft/tags/functions/tick.json");
+                Files.createDirectories(path.getParent());
+                Files.write(path, content.getBytes());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (!loaded.isEmpty()) {
+            String content = loaded.stream()
+                    .map(b -> b.getNameSpaceStack().get(0))
+                    .collect(Collectors.joining("\",\n\t\t", "{\n\t\"values\": [\n\t\t\"", "\"\n\t]\n}"));
+            try {
+                Path path = dir.resolve("data/minecraft/tags/functions/load.json");
+                Files.createDirectories(path.getParent());
+                Files.write(path, content.getBytes());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         getAllFilesInDataPack(dir, ".mcfunction")
                 .filter(o -> !allTouched.containsValue(o))
                 .filter(path -> {
@@ -40,39 +81,36 @@ public class CompileStuff {
                     return false;
                 })
                 .forEach(value -> {
-                    Path data = Paths.get(dir.toString(), "data");
-                    Path path1 = data.toAbsolutePath();
-                    Path pathRelative = path1.relativize(value);
+                    Path data = dir.resolve("data");
+                    Path absolutePath = data.toAbsolutePath();
+                    Path pathRelative = absolutePath.relativize(value);
                     //System.out.println(pathRelative);
-                    String item = pathRelative.toString().replaceFirst("\\\\functions\\\\", ":");
+                    String item = pathRelative.toString().replaceFirst("\\\\functions\\\\", ":").replace('\\', '/');
                     allUntouched.put(item, value);
                 });
 
     }
 
-    private static Stream<Path> getAllFilesInDataPack(File dir, String extension) {
-        Path data = Paths.get(dir.getAbsolutePath(), "data");
-        File[] files = data.toFile().listFiles();
-        if (files == null) {
-            System.out.println("nothing found under " + data);
-            return Stream.empty();
+    private static Stream<Path> getAllFilesInDataPack(Path dir, String extension) {
+        Path data = dir.resolve("data");
+        Stream<Path> stream = Stream.empty();
+        try {
+            return Files.list(data).filter(Files::isDirectory)
+                    .map(path -> path.resolve("functions"))
+                    .filter(Files::isDirectory)
+                    .map(functionPath -> {
+                        try {
+                            return Files.walk(functionPath).filter(path -> path.toString().endsWith(extension));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            return null;
+                        }
+                    }).flatMap(Function.identity());
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-        Stream<Path> stream = Stream.empty();
-        for (File file : files) {
-            if (file.isDirectory()) { // optimally, the data folder should only have directories, but this is to be safe
-                Path functionsPath = Paths.get(file.getAbsolutePath(), "functions");
-                if (!functionsPath.toFile().isDirectory()) {
-                    continue;
-                }
-                try {
-                    stream = Stream.concat(stream, Files.walk(functionsPath)
-                            .filter(path -> path.toFile().getName().endsWith(extension)));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+
         return stream;
     }
 }
