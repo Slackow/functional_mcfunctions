@@ -1,6 +1,6 @@
 package com.function.main.controlstuff;
 
-import com.esotericsoftware.minlog.Log;
+import com.function.main.CompileStuff;
 import com.function.main.McFunction;
 import com.function.main.grammar.MainFunctionParserBaseVisitor;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -11,7 +11,6 @@ import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
 import static com.function.main.McFunction.Special.LOADED;
 import static com.function.main.McFunction.Special.TICKED;
 import static com.function.main.controlstuff.Value.VOID;
@@ -559,7 +558,7 @@ public class FunctionVisitor extends MainFunctionParserBaseVisitor<Value> {
     @Override
     public Value visitLog_line(Log_lineContext ctx) {
         Value value = this.visit(ctx.expr());
-        Log.info(value.asString());
+        CompileStuff.LOGGER.info(value.asString());
         return VOID;
     }
 

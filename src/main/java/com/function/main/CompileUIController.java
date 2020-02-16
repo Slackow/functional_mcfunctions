@@ -37,7 +37,7 @@ public class CompileUIController {
     @FXML
     private void initialize() {
         textField.setText(System.getenv("appdata") + "\\.minecraft\\saves");
-        //textField.setText(new File("testfiles").getAbsolutePath());
+        textField.setText(Paths.get("testfiles").toAbsolutePath().toString());
     }
 
     @FXML

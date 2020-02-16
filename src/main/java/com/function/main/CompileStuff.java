@@ -1,13 +1,15 @@
 package com.function.main;
 
-import com.esotericsoftware.minlog.Log;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -15,6 +17,8 @@ public class CompileStuff {
 
     static final Map<String, Path> allTouched = new HashMap<>();
     static final Map<String, Path> allUntouched = new HashMap<>();
+
+    public static final Logger LOGGER = Logger.getLogger(CompileStuff.class.getName());
 
     public static void main(String[] args) {
         Path dir = Paths.get("testfiles");
@@ -24,12 +28,11 @@ public class CompileStuff {
     public static void compile(Path dir) {
         allTouched.clear();
         allUntouched.clear();
-        System.out.println();
-        Log.info("Compiling: " + dir.getFileName().toString());
+        LOGGER.info("Compiling: " + dir.getFileName().toString());
         List<McFunction> ticked = new ArrayList<>();
         List<McFunction> loaded = new ArrayList<>();
         getAllFilesInDataPack(dir, ".function")
-                .peek(path -> Log.info(path.toString()))
+                .peek(path -> LOGGER.info(path.toString()))
                 .map(path -> new McFunction(path, dir))
                 .forEach(mcFunction -> {
                     mcFunction.parse();
@@ -93,7 +96,6 @@ public class CompileStuff {
 
     private static Stream<Path> getAllFilesInDataPack(Path dir, String extension) {
         Path data = dir.resolve("data");
-        Stream<Path> stream = Stream.empty();
         try {
             return Files.list(data).filter(Files::isDirectory)
                     .map(path -> path.resolve("functions"))
@@ -111,6 +113,6 @@ public class CompileStuff {
         }
 
 
-        return stream;
+        return Stream.empty();
     }
 }
