@@ -26,6 +26,7 @@
                 <Tooltip text="deletes any file that was previously generated but wasn't on last compile" />
             </tooltip>
         </Button>
+      <Button fx:id="showLogButton" mnemonicParsing="false" onAction="#onOpenLog" text="Show Log" />
 
     </VBox>
     <SplitPane fx:id="splitPane2" dividerPositions="0.5" style="-fx-min-height: 30%;">

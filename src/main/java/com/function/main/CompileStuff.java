@@ -16,12 +16,12 @@ public class CompileStuff {
     static final Map<String, Path> allTouched = new HashMap<>();
     static final Map<String, Path> allUntouched = new HashMap<>();
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Path dir = Paths.get("testfiles");
         compile(dir);
     }
 
-    public static void compile(Path dir) {
+    public static void compile(Path dir) throws IOException {
         allTouched.clear();
         allUntouched.clear();
         System.out.println();
@@ -48,26 +48,29 @@ public class CompileStuff {
             String content = ticked.stream()
                     .map(b -> b.getNameSpaceStack().get(0))
                     .collect(Collectors.joining("\",\n\t\t", "{\n\t\"values\": [\n\t\t\"", "\"\n\t]\n}"));
-            try {
 
-                Path path = dir.resolve("data/minecraft/tags/functions/tick.json");
-                Files.createDirectories(path.getParent());
-                Files.write(path, content.getBytes());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Path path = dir.resolve("data/minecraft/tags/functions/tick.json");
+            Files.createDirectories(path.getParent());
+            Files.write(path, Collections.singleton(content));
         }
         if (!loaded.isEmpty()) {
             String content = loaded.stream()
                     .map(b -> b.getNameSpaceStack().get(0))
                     .collect(Collectors.joining("\",\n\t\t", "{\n\t\"values\": [\n\t\t\"", "\"\n\t]\n}"));
-            try {
-                Path path = dir.resolve("data/minecraft/tags/functions/load.json");
-                Files.createDirectories(path.getParent());
-                Files.write(path, content.getBytes());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Path path = dir.resolve("data/minecraft/tags/functions/load.json");
+            Files.createDirectories(path.getParent());
+            Files.write(path, Collections.singleton(content));
+        }
+
+        Path packMeta = dir.resolve("pack.mcmeta");
+        if (Files.notExists(packMeta)) {
+            Files.write(packMeta, Arrays.asList(
+                    "{",
+                    "   \"pack\": {",
+                    "       \"pack_format\": 1,",
+                    "       \"description\": \"\"",
+                    "   }",
+                    "}"));
         }
 
         getAllFilesInDataPack(dir, ".mcfunction")
@@ -84,7 +87,8 @@ public class CompileStuff {
                     Path data = dir.resolve("data");
                     Path absolutePath = data.toAbsolutePath();
                     Path pathRelative = absolutePath.relativize(value);
-                    //System.out.println(pathRelative);
+                    System.out.println(pathRelative);
+                    System.out.println(value);
                     String item = pathRelative.toString().replaceFirst("\\\\functions\\\\", ":").replace('\\', '/');
                     allUntouched.put(item, value);
                 });

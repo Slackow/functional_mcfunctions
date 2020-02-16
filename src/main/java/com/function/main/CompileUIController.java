@@ -33,11 +33,13 @@ public class CompileUIController {
     private TextField textField;
     @FXML
     private Label feedbackLabel;
+    @FXML
+    private Button showLogButton;
 
     @FXML
     private void initialize() {
         textField.setText(System.getenv("appdata") + "\\.minecraft\\saves");
-        //textField.setText(new File("testfiles").getAbsolutePath());
+        //textField.setText(Paths.get("testfiles").getAbsolutePath());
     }
 
     @FXML
@@ -60,10 +62,16 @@ public class CompileUIController {
                 Files.list(datapacks)
                         .filter(path -> Files.isDirectory(path) && Files.isDirectory(path.resolve("data")))
                         .forEach(dir -> {
-                            CompileStuff.compile(dir);
+                            try {
+                                CompileStuff.compile(dir);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                             allTouched.putAll(CompileStuff.allTouched);
                             allUntouched.putAll(CompileStuff.allUntouched);
                         });
+                allTouched.forEach(CompileStuff.allTouched::putIfAbsent);
+                allUntouched.forEach(CompileStuff.allUntouched::putIfAbsent);
             } else {
                 CompileStuff.compile(source);
                 allTouched = CompileStuff.allTouched;
@@ -90,7 +98,8 @@ public class CompileUIController {
             try {
                 Files.deleteIfExists(value);
                 Path dir = value.getParent();
-                while (dir.toFile().delete()) {
+                while (!Files.list(dir).findAny().isPresent()) {
+                    Files.delete(dir);
                     dir = dir.getParent();
                 }
             } catch (IOException e) {
@@ -99,6 +108,10 @@ public class CompileUIController {
         });
         filesNotGeneratedListView.getItems().clear();
         deleteAllButton.setDisable(true);
+    }
+
+    @FXML
+    public void onOpenLog() {
     }
 
     @FXML
