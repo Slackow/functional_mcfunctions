@@ -43,8 +43,7 @@ public class CompileUIController {
     @FXML
     public void onCompile() throws IOException {
         String textFieldText = textField.getText();
-        System.out.println(textFieldText);
-
+        CompileStuff.LOGGER.info(textFieldText);
         splitPane.setDividerPosition(0, 0.5);
         splitPane2.setDividerPosition(0, 0.5);
 
@@ -60,10 +59,16 @@ public class CompileUIController {
                 Files.list(datapacks)
                         .filter(path -> Files.isDirectory(path) && Files.isDirectory(path.resolve("data")))
                         .forEach(dir -> {
-                            CompileStuff.compile(dir);
+                            try {
+                                CompileStuff.compile(dir);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                             allTouched.putAll(CompileStuff.allTouched);
                             allUntouched.putAll(CompileStuff.allUntouched);
                         });
+                allTouched.forEach(CompileStuff.allTouched::putIfAbsent);
+                allUntouched.forEach(CompileStuff.allUntouched::putIfAbsent);
             } else {
                 CompileStuff.compile(source);
                 allTouched = CompileStuff.allTouched;
@@ -89,10 +94,6 @@ public class CompileUIController {
         CompileStuff.allUntouched.forEach((key, value) -> {
             try {
                 Files.deleteIfExists(value);
-                Path dir = value.getParent();
-                while (dir.toFile().delete()) {
-                    dir = dir.getParent();
-                }
             } catch (IOException e) {
                 e.printStackTrace();
             }

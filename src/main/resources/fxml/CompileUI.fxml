@@ -1,41 +1,62 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
+<?import javafx.stage.*?>
 
-<SplitPane fx:id="splitPane" dividerPositions="0.5" orientation="VERTICAL" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.function.main.CompileUIController">
-    <VBox prefHeight="200.0" prefWidth="560.0" style="-fx-alignment: center;">
-        <Label mouseTransparent="true" text="Very Epic Compiler">
-            <font>
-                <Font size="20.0" />
-            </font>
-        </Label>
-        <HBox maxWidth="1.7976931348623157E308" prefHeight="29.0" prefWidth="200.0" style="-fx-alignment: center;">
-            <TextField fx:id="textField" editable="false" focusTraversable="false" maxWidth="1.7976931348623157E308" mouseTransparent="true" prefHeight="25.0" prefWidth="516.0" />
-            <Button mnemonicParsing="false" onAction="#onOpenDirectory" text="..." />
-        </HBox>
-        <Button alignment="CENTER" contentDisplay="CENTER" defaultButton="true" mnemonicParsing="false" onAction="#onCompile" text="Compile">
-            <tooltip>
-                <Tooltip text="traverses selected directory and compiles each .function file" />
-            </tooltip>
-        </Button>
-        <Label fx:id="feedbackLabel" alignment="CENTER" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" prefHeight="17.0" prefWidth="396.0" text="feedbackLabel" textAlignment="CENTER" visible="false" />
-        <Button fx:id="deleteAllButton" disable="true" mnemonicParsing="false" onAction="#onDeleteAll" text="Delete all unneeded">
-            <tooltip>
-                <Tooltip text="deletes any file that was previously generated but wasn't on last compile" />
-            </tooltip>
-        </Button>
+<?import javafx.scene.image.Image?>
+<Stage title="Epic Mcfunction compiler" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.function.main.CompileUIController">
+   <icons>
+       <Image url="/images/icon.png"/>
+   </icons>
+    <scene>
+       <Scene>
+           <SplitPane fx:id="splitPane" dividerPositions="0.5" orientation="VERTICAL">
+               <VBox prefHeight="200.0" prefWidth="560.0" style="-fx-alignment: center;">
+                   <Label mouseTransparent="true" text="Very Epic Compiler">
+                       <font>
+                           <Font size="20.0"/>
+                       </font>
+                   </Label>
+                   <HBox maxWidth="1.7976931348623157E308" prefHeight="29.0" prefWidth="200.0"
+                         style="-fx-alignment: center;">
+                       <TextField fx:id="textField" editable="false" focusTraversable="false"
+                                  maxWidth="1.7976931348623157E308" mouseTransparent="true" prefHeight="25.0"
+                                  prefWidth="516.0"/>
+                       <Button mnemonicParsing="false" onAction="#onOpenDirectory" text="..."/>
+                   </HBox>
+                   <Button alignment="CENTER" contentDisplay="CENTER" defaultButton="true" mnemonicParsing="false"
+                           onAction="#onCompile" text="Compile">
+                       <tooltip>
+                           <Tooltip text="traverses selected directory and compiles each .function file"/>
+                       </tooltip>
+                   </Button>
+                   <Label fx:id="feedbackLabel" alignment="CENTER" contentDisplay="CENTER"
+                          maxWidth="1.7976931348623157E308" prefHeight="17.0" prefWidth="396.0" text="feedbackLabel"
+                          textAlignment="CENTER" visible="false"/>
+                   <Button fx:id="deleteAllButton" disable="true" mnemonicParsing="false" onAction="#onDeleteAll"
+                           text="Delete all unneeded">
+                       <tooltip>
+                           <Tooltip text="deletes any file that was previously generated but wasn't on last compile"/>
+                       </tooltip>
+                   </Button>
 
-    </VBox>
-    <SplitPane fx:id="splitPane2" dividerPositions="0.5" style="-fx-min-height: 30%;">
-        <VBox alignment="CENTER" style="-fx-alignment: center;">
-            <Label mouseTransparent="true" text="Files Generated" />
-            <ListView fx:id="filesGeneratedListView" focusTraversable="false" maxHeight="1.7976931348623157E308" />
-        </VBox>
-        <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" style="-fx-alignment: center;">
-            <Label alignment="CENTER" mouseTransparent="true" style="-fx-alignment: center;" text="Files Not Generated" />
-            <ListView fx:id="filesNotGeneratedListView" focusTraversable="false" />
-        </VBox>
-    </SplitPane>
-</SplitPane>
+               </VBox>
+               <SplitPane fx:id="splitPane2" dividerPositions="0.5" style="-fx-min-height: 30%;">
+                   <VBox alignment="CENTER" style="-fx-alignment: center;">
+                       <Label mouseTransparent="true" text="Files Generated"/>
+                       <ListView fx:id="filesGeneratedListView" focusTraversable="false"
+                                 maxHeight="1.7976931348623157E308"/>
+                   </VBox>
+                   <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" style="-fx-alignment: center;">
+                       <Label alignment="CENTER" mouseTransparent="true" style="-fx-alignment: center;"
+                              text="Files Not Generated"/>
+                       <ListView fx:id="filesNotGeneratedListView" focusTraversable="false"/>
+                   </VBox>
+               </SplitPane>
+           </SplitPane>
+       </Scene>
+   </scene>
+</Stage>

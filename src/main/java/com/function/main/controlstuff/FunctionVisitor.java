@@ -1,7 +1,7 @@
 package com.function.main.controlstuff;
 
 import com.function.main.CompileStuff;
-import com.function.main.McFunction;
+import com.function.main.Datapack;
 import com.function.main.grammar.MainFunctionParserBaseVisitor;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -11,17 +11,17 @@ import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import static com.function.main.McFunction.Special.LOADED;
-import static com.function.main.McFunction.Special.TICKED;
+
 import static com.function.main.controlstuff.Value.VOID;
 import static com.function.main.grammar.MainFunctionParser.*;
 
 public class FunctionVisitor extends MainFunctionParserBaseVisitor<Value> {
     private Scope<Value> memory = new Scope<>();
-    private McFunction mcFunction;
+    private Datapack datapack;
+    private Stack<String> namespaceStack = new Stack<>();
 
-    public FunctionVisitor(McFunction mcFunction) {
-        this.mcFunction = mcFunction;
+    public FunctionVisitor(Datapack datapack) {
+        this.datapack = datapack;
     }
 
     private void enterScope() {
@@ -32,15 +32,19 @@ public class FunctionVisitor extends MainFunctionParserBaseVisitor<Value> {
         memory = memory.getParent();
     }
 
+    public void addNamespace(String namespace) {
+        namespaceStack.add(namespace);
+    }
+
     @Override
     public Value visitProgram(ProgramContext ctx) {
         if (ctx.THIS() != null) {
             if (ctx.TICK() != null) {
-                System.out.println("Ticked");
-                mcFunction.setSpecial(TICKED);
+                CompileStuff.LOGGER.info("Ticked");
+                datapack.addTicked(namespaceStack.get(0));
             } else {
-                System.out.println("Loaded");
-                mcFunction.setSpecial(LOADED);
+                CompileStuff.LOGGER.info("Loaded");
+                datapack.addLoaded(namespaceStack.get(0));
             }
         }
         ctx.statement().forEach(this::visit);
@@ -623,15 +627,13 @@ public class FunctionVisitor extends MainFunctionParserBaseVisitor<Value> {
     public Value visitFunction_call_line(Function_call_lineContext ctx) {
         Value function = this.visit(ctx.expr(0));
         List<Value> params = ctx.expr().stream().skip(1).map(this::visit).collect(Collectors.toList());
-        if (function.isFunction()) {
-            FunFunction fun = function.asFunction(supplier(ctx));
-            enterScope();
-            memory.put("this", fun.getInstance());
-            Value value = fun.getFunction().apply(params);
-            exitScope();
-            return value;
-        }
-        return VOID;
+        FunFunction fun = function.asFunction(supplier(ctx));
+        enterScope();
+        memory.put("this", fun.getInstance());
+        Value value = fun.getFunction().apply(params);
+        exitScope();
+        return value;
+
     }
 
     // (IDEN | LPAREN (IDEN (COMMA IDEN)*)? RPAREN) ARROW (expr | block)
@@ -864,8 +866,7 @@ public class FunctionVisitor extends MainFunctionParserBaseVisitor<Value> {
 
     @Override
     public Value visitGen_mcfunction_line(Gen_mcfunction_lineContext ctx) {
-        Stack<String> nameSpaceStack = mcFunction.getNameSpaceStack();
-        String current = nameSpaceStack.peek();
+        String current = namespaceStack.peek();
         Expr_blockContext expr_block = ctx.expr_block();
         String namespace = this.visit(expr_block.expr()).asString();
         if (namespace.startsWith("/")) {
@@ -885,12 +886,11 @@ public class FunctionVisitor extends MainFunctionParserBaseVisitor<Value> {
     }
 
     private void genFunction(String namespace, Stat_blockContext ctx) {
-        Stack<String> nameSpaceStack = mcFunction.getNameSpaceStack();
-        nameSpaceStack.push(namespace);
+        namespaceStack.push(namespace);
         enterScope();
         this.visit(ctx);
         exitScope();
-        nameSpaceStack.pop();
+        namespaceStack.pop();
     }
 
     @Override
@@ -911,8 +911,7 @@ public class FunctionVisitor extends MainFunctionParserBaseVisitor<Value> {
             }
         }
 
-        Stack<String> nameSpaceStack = mcFunction.getNameSpaceStack();
-        String current = nameSpaceStack.peek();
+        String current = namespaceStack.peek();
         if (ctx.OPEN_FUNCTION() != null) {
             String processed = ctx.expr() != null ? this.visit(ctx.expr()).asString() : "";
             String namespace;
@@ -921,7 +920,7 @@ public class FunctionVisitor extends MainFunctionParserBaseVisitor<Value> {
                 int num = 1;
                 do {
                     namespace = current + "_" + num++;
-                } while (mcFunction.getNamespaces().contains(namespace));
+                } while (datapack.getNamespaces().contains(namespace));
                 extra = processed;
             } else {
                 int index = processed.indexOf(' ');
@@ -951,11 +950,11 @@ public class FunctionVisitor extends MainFunctionParserBaseVisitor<Value> {
 
 
         if (ctx.OPEN_COMMAND() != null) { // make blocks of commands in the functions reflect in the mcfunction file
-            mcFunction.addLine(current, "");
+            datapack.addLine(current, "");
         }
 
         String string = sb.toString();
-        mcFunction.addLine(current, string);
+        datapack.addLine(current, string);
         return VOID;
     }
 }

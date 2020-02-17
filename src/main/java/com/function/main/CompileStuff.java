@@ -4,74 +4,59 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
+import java.util.logging.Handler;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.function.main.Datapack.pathToNamespace;
 
 public class CompileStuff {
 
     static final Map<String, Path> allTouched = new HashMap<>();
     static final Map<String, Path> allUntouched = new HashMap<>();
 
-    public static final Logger LOGGER = Logger.getLogger(CompileStuff.class.getName());
+    public static Logger LOGGER = Logger.getLogger(CompileStuff.class.getName());
 
-    public static void main(String[] args) {
+    static {
+        LOGGER.setUseParentHandlers(false);
+        LOGGER.addHandler(new Handler() {
+            @Override
+            public void publish(LogRecord record) {
+                System.out.println(record.getLevel() + ": " + record.getMessage());
+            }
+
+            @Override
+            public void flush() {
+
+            }
+
+            @Override
+            public void close() throws SecurityException {
+
+            }
+        });
+    }
+
+    public static void main(String[] args) throws IOException {
         Path dir = Paths.get("testfiles");
         compile(dir);
     }
 
-    public static void compile(Path dir) {
+    public static void compile(Path dir) throws IOException {
         allTouched.clear();
         allUntouched.clear();
-        LOGGER.info("Compiling: " + dir.getFileName().toString());
-        List<McFunction> ticked = new ArrayList<>();
-        List<McFunction> loaded = new ArrayList<>();
-        getAllFilesInDataPack(dir, ".function")
-                .peek(path -> LOGGER.info(path.toString()))
-                .map(path -> new McFunction(path, dir))
-                .forEach(mcFunction -> {
-                    mcFunction.parse();
-                    switch (mcFunction.getSpecial()) {
-                        case TICKED:
-                            ticked.add(mcFunction);
-                            break;
-                        case LOADED:
-                            loaded.add(mcFunction);
-                            break;
-                    }
-                    allTouched.putAll(mcFunction.save());
-                });
+        LOGGER.info("Compiling: " + dir.getFileName());
+        List<Path> functions = getAllFilesInDataPack(dir, ".function")
+                .collect(Collectors.toList());
+        Datapack datapack = new Datapack(dir, functions);
+//TODO WORK ON NEW DATAPACK STUFF, LOGGING WINDOW, UNIT TESTS
 
-        if (!ticked.isEmpty()) {
-            String content = ticked.stream()
-                    .map(b -> b.getNameSpaceStack().get(0))
-                    .collect(Collectors.joining("\",\n\t\t", "{\n\t\"values\": [\n\t\t\"", "\"\n\t]\n}"));
-            try {
-
-                Path path = dir.resolve("data/minecraft/tags/functions/tick.json");
-                Files.createDirectories(path.getParent());
-                Files.write(path, content.getBytes());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        if (!loaded.isEmpty()) {
-            String content = loaded.stream()
-                    .map(b -> b.getNameSpaceStack().get(0))
-                    .collect(Collectors.joining("\",\n\t\t", "{\n\t\"values\": [\n\t\t\"", "\"\n\t]\n}"));
-            try {
-                Path path = dir.resolve("data/minecraft/tags/functions/load.json");
-                Files.createDirectories(path.getParent());
-                Files.write(path, content.getBytes());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        datapack.parse();
+        allTouched.putAll(datapack.save());
 
         getAllFilesInDataPack(dir, ".mcfunction")
                 .filter(o -> !allTouched.containsValue(o))
@@ -84,11 +69,7 @@ public class CompileStuff {
                     return false;
                 })
                 .forEach(value -> {
-                    Path data = dir.resolve("data");
-                    Path absolutePath = data.toAbsolutePath();
-                    Path pathRelative = absolutePath.relativize(value);
-                    //System.out.println(pathRelative);
-                    String item = pathRelative.toString().replaceFirst("\\\\functions\\\\", ":").replace('\\', '/');
+                    String item = pathToNamespace(dir, value);
                     allUntouched.put(item, value);
                 });
 

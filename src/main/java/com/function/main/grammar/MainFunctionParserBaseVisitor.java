@@ -1,4 +1,4 @@
-// Generated from C:/Code/minecraft/modding/mcfunction_lambdas/src/main/antlr\MainFunctionParser.g4 by ANTLR 4.8
+// Generated from D:/code/mcfunction_lambdas/src/main/antlr\MainFunctionParser.g4 by ANTLR 4.7.2
 package com.function.main.grammar;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 

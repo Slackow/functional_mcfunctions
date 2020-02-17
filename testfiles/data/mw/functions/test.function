@@ -1,3 +1,4 @@
+tick this;
 /scoreboard players set @a money 0
 /execute if score @s money matches 1.. run $function 'something' {
     for item in [['Slackow','Kihron'],['Waddledeeplays','seb_magnesium']] {
@@ -14,10 +15,10 @@ var x=2;
         log 'made it !!!! $x';
         /one_line
     }
-    /$function 'mcFunction' {
+    /$function 'function' {
         /dude
     }
-    /$function 'mcFunction' {
+    /$function 'function' {
         /more_test
     }
 }
@@ -30,7 +31,7 @@ if x == 1 {
     log 'x is 1!!!!';
 } else if (x >= 3) {
     log 'you are able to say else if?! also x is $x';
-} elif (x < 3) {
+} else if (x < 3) {
     log 'now this is gonna be interesting';
 } else {
     log 'x is $x';
@@ -40,7 +41,7 @@ if x == 1 {
 
 
 /say what's up
-for (var i = 0;i < 4;i++) {
+for (var i = 0;i <= 4;i++) {
     /say $i
     //summon armor_stand ~ ~ ~ {
         Invisible:1b,
@@ -49,14 +50,13 @@ for (var i = 0;i < 4;i++) {
     /scoreboard players set @e[type=armor_stand,limit=1,sort=nearest,distance=..0.1] energy ${i + 1}
 }
 #hello
-//hello
 x=1+3;
 
-for (var i = 6;i > 2;i-=2) {
+for (var i = 6;i >= 2;i-=2) {
     /say $i $x
     /execute if whatever
 }
-list = [['name',true,1],['other word',false,2]];
+var list = [['name',true,1],['other word',false,2]];
 for item in list.filter(l -> l[1]) {
     /tellraw @a "${item[0]} ${item[2] + 3}"
 }
