@@ -4,9 +4,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.logging.Handler;
+import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -49,13 +54,15 @@ public class CompileStuff {
     public static void compile(Path dir) throws IOException {
         allTouched.clear();
         allUntouched.clear();
-        LOGGER.info("Compiling: " + dir.getFileName());
+        LOGGER.info("Compiling: " + dir.getFileName() + " at " + LocalTime.now().format(DateTimeFormatter.ofPattern("h:mm:ss")));
         List<Path> functions = getAllFilesInDataPack(dir, ".function")
                 .collect(Collectors.toList());
         Datapack datapack = new Datapack(dir, functions);
-//TODO WORK ON NEW DATAPACK STUFF, LOGGING WINDOW, UNIT TESTS
-
-        datapack.parse();
+        try {
+            datapack.parse();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
         allTouched.putAll(datapack.save());
 
         getAllFilesInDataPack(dir, ".mcfunction")
@@ -68,14 +75,14 @@ public class CompileStuff {
                     }
                     return false;
                 })
-                .forEach(value -> {
-                    String item = pathToNamespace(dir, value);
-                    allUntouched.put(item, value);
+                .forEach(path -> {
+                    String namespace = pathToNamespace(dir, path);
+                    allUntouched.put(namespace, path);
                 });
 
     }
 
-    private static Stream<Path> getAllFilesInDataPack(Path dir, String extension) {
+    static Stream<Path> getAllFilesInDataPack(Path dir, String extension) {
         Path data = dir.resolve("data");
         try {
             return Files.list(data).filter(Files::isDirectory)

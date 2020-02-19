@@ -5,4 +5,4 @@ compile
 gradle
 out
 testfiles
-mcfunction_lambdas.iml
+*.iml

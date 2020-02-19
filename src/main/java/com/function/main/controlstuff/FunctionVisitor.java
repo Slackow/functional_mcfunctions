@@ -40,10 +40,8 @@ public class FunctionVisitor extends MainFunctionParserBaseVisitor<Value> {
     public Value visitProgram(ProgramContext ctx) {
         if (ctx.THIS() != null) {
             if (ctx.TICK() != null) {
-                CompileStuff.LOGGER.info("Ticked");
                 datapack.addTicked(namespaceStack.get(0));
             } else {
-                CompileStuff.LOGGER.info("Loaded");
                 datapack.addLoaded(namespaceStack.get(0));
             }
         }
@@ -919,7 +917,7 @@ public class FunctionVisitor extends MainFunctionParserBaseVisitor<Value> {
             if (processed.length() == 0 || Character.isDigit(processed.charAt(0))) {
                 int num = 1;
                 do {
-                    namespace = current + "_" + num++;
+                    namespace = current + "/fun" + num++;
                 } while (datapack.getNamespaces().contains(namespace));
                 extra = processed;
             } else {

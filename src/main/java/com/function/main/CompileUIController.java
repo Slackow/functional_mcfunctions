@@ -8,6 +8,7 @@ import javafx.stage.DirectoryChooser;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,6 +17,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Handler;
+import java.util.logging.LogRecord;
 
 public class CompileUIController {
 
@@ -33,20 +36,56 @@ public class CompileUIController {
     private TextField textField;
     @FXML
     private Label feedbackLabel;
+    @FXML
+    private TextArea logArea;
+    @FXML
+    private CheckBox showLog;
+
+    @FXML
+    private void showLog() {
+        if (showLog.isSelected()) {
+            splitPane.setDividerPositions(0.5, 0.5);
+        } else {
+            splitPane.setDividerPositions(0.5, 1);
+        }
+    }
 
     @FXML
     private void initialize() {
         textField.setText(System.getenv("appdata") + "\\.minecraft\\saves");
         textField.setText(Paths.get("testfiles").toAbsolutePath().toString());
+        //Because antlr uses System.err.println for smaller errors
+        System.setErr(new PrintStream(System.err){
+            @Override
+            public void println(String s) {
+                CompileStuff.LOGGER.severe(s);
+            }
+        });
+        CompileStuff.LOGGER.addHandler(new Handler() {
+            @Override
+            public void publish(LogRecord record) {
+                logArea.setText(logArea.getText() + "\n" + record.getLevel() + ": " + record.getMessage());
+            }
+
+            @Override
+            public void flush() {
+
+            }
+
+            @Override
+            public void close() throws SecurityException {
+
+            }
+        });
     }
 
     @FXML
     public void onCompile() throws IOException {
         String textFieldText = textField.getText();
-        CompileStuff.LOGGER.info(textFieldText);
-        splitPane.setDividerPosition(0, 0.5);
+        CompileStuff.LOGGER.info("Working in: " + textFieldText);
+        showLog();
         splitPane2.setDividerPosition(0, 0.5);
-
+        logArea.setText("");
         Path source = Paths.get(textFieldText);
 
         if (Files.isDirectory(source.resolve("data"))) {
@@ -93,7 +132,11 @@ public class CompileUIController {
     public void onDeleteAll() {
         CompileStuff.allUntouched.forEach((key, value) -> {
             try {
-                Files.deleteIfExists(value);
+                Files.delete(value);
+                File dir = value.getParent().toFile();
+                while (dir.delete()) {
+                    dir = dir.getParentFile();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }

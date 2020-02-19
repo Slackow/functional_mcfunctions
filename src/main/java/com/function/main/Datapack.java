@@ -39,8 +39,9 @@ public class Datapack {
     }
 
     public static String pathToNamespace(Path datapackPath, Path functionPath) {
-        Path relativePath = datapackPath.resolve("data").toAbsolutePath().relativize(functionPath);
+        Path relativePath = datapackPath.resolve("data").relativize(functionPath);
         String s = relativePath.toString().replaceFirst("\\\\functions\\\\", ":").replace('\\', '/');
+        assert s.endsWith(".mcfunction") || s.endsWith(".function");
         return s.substring(0, s.lastIndexOf('.'));
     }
 
@@ -57,12 +58,11 @@ public class Datapack {
     }
 
     public void parse() {
-
         contents.forEach((namespace, lines) -> {
             String contents = String.join("\n", lines);
             if (contents.startsWith("/")) {
                 contents = "\n" + contents;
-                CompileStuff.LOGGER.warning("Errors will be one line off, add a blank line at the beginning to fix.");
+                CompileStuff.LOGGER.warning("Errors will be one line off, add a blank line at the start of file to fix.");
             }
             CharStream in = CharStreams.fromString(contents);
             FunctionLexer functionLexer = new FunctionLexer(in);
@@ -77,11 +77,10 @@ public class Datapack {
 
     public Map<String, Path> save() throws IOException {
         Map<String, Path> map = new HashMap<>();
-        functionLines.values().removeIf(list -> list.stream().allMatch(str -> str.trim().isEmpty()));
         functionLines.forEach((namespace, fileContent) -> {
             fileContent.add(0, "#Generated with https://github.com/cowslayer7890/functional_mcfunctions");
             try {
-                Path path = namespaceToPath(namespace, datapackPath);
+                Path path = namespaceToPath(datapackPath, namespace);
                 Files.createDirectories(path.getParent());
                 Files.write(path, fileContent);
                 map.put(namespace, path);
@@ -119,7 +118,8 @@ public class Datapack {
         return map;
     }
 
-    private static Path namespaceToPath(String namespace, Path datapackPath) {
+    static Path namespaceToPath(Path datapackPath, String namespace) {
+        assert datapackPath != null && namespace != null;
         return datapackPath.resolve(Paths.get("data", namespace.replace(":", "\\functions\\") + ".mcfunction"));
     }
 

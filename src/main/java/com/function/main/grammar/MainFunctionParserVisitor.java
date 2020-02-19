@@ -223,126 +223,126 @@ public interface MainFunctionParserVisitor<T> extends ParseTreeVisitor<T> {
 	T visitCommmandGoOnPart(MainFunctionParser.CommmandGoOnPartContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code negationExpr}
-	 * labeled alternative in {@link MainFunctionParser#expr}.
+	 * labeled alternative in {@link MainFunctionParser#expr()}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitNegationExpr(MainFunctionParser.NegationExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code getFromObjectExpr}
-	 * labeled alternative in {@link MainFunctionParser#expr}.
+	 * labeled alternative in {@link MainFunctionParser#expr()}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitGetFromObjectExpr(MainFunctionParser.GetFromObjectExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code atomExpr}
-	 * labeled alternative in {@link MainFunctionParser#expr}.
+	 * labeled alternative in {@link MainFunctionParser#expr()}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitAtomExpr(MainFunctionParser.AtomExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code orExpr}
-	 * labeled alternative in {@link MainFunctionParser#expr}.
+	 * labeled alternative in {@link MainFunctionParser#expr()()}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitOrExpr(MainFunctionParser.OrExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code additiveExpr}
-	 * labeled alternative in {@link MainFunctionParser#expr}.
+	 * labeled alternative in {@link MainFunctionParser#expr()}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitAdditiveExpr(MainFunctionParser.AdditiveExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code relationalExpr}
-	 * labeled alternative in {@link MainFunctionParser#expr}.
+	 * labeled alternative in {@link MainFunctionParser#expr()}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitRelationalExpr(MainFunctionParser.RelationalExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code subExpr}
-	 * labeled alternative in {@link MainFunctionParser#expr}.
+	 * labeled alternative in {@link MainFunctionParser#expr()}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitSubExpr(MainFunctionParser.SubExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code elvisExpr}
-	 * labeled alternative in {@link MainFunctionParser#expr}.
+	 * labeled alternative in {@link MainFunctionParser#expr()}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitElvisExpr(MainFunctionParser.ElvisExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code parExpr}
-	 * labeled alternative in {@link MainFunctionParser#expr}.
+	 * labeled alternative in {@link MainFunctionParser#expr()}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitParExpr(MainFunctionParser.ParExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code notExpr}
-	 * labeled alternative in {@link MainFunctionParser#expr}.
+	 * labeled alternative in {@link MainFunctionParser#expr()}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitNotExpr(MainFunctionParser.NotExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code ternaryExpr}
-	 * labeled alternative in {@link MainFunctionParser#expr}.
+	 * labeled alternative in {@link MainFunctionParser#expr()}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitTernaryExpr(MainFunctionParser.TernaryExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code runFunctionExpr}
-	 * labeled alternative in {@link MainFunctionParser#expr}.
+	 * labeled alternative in {@link MainFunctionParser#expr()}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitRunFunctionExpr(MainFunctionParser.RunFunctionExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code multiplicationExpr}
-	 * labeled alternative in {@link MainFunctionParser#expr}.
+	 * labeled alternative in {@link MainFunctionParser#expr()}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitMultiplicationExpr(MainFunctionParser.MultiplicationExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code powExpr}
-	 * labeled alternative in {@link MainFunctionParser#expr}.
+	 * labeled alternative in {@link MainFunctionParser#expr()}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitPowExpr(MainFunctionParser.PowExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code isExpr}
-	 * labeled alternative in {@link MainFunctionParser#expr}.
+	 * labeled alternative in {@link MainFunctionParser#expr()}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitIsExpr(MainFunctionParser.IsExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code getItemExpr}
-	 * labeled alternative in {@link MainFunctionParser#expr}.
+	 * labeled alternative in {@link MainFunctionParser#expr()}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitGetItemExpr(MainFunctionParser.GetItemExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code equalityExpr}
-	 * labeled alternative in {@link MainFunctionParser#expr}.
+	 * labeled alternative in {@link MainFunctionParser#expr()}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitEqualityExpr(MainFunctionParser.EqualityExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code andExpr}
-	 * labeled alternative in {@link MainFunctionParser#expr}.
+	 * labeled alternative in {@link MainFunctionParser#expr()}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
