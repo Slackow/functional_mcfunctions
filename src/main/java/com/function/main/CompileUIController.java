@@ -53,7 +53,7 @@ public class CompileUIController {
     @FXML
     private void initialize() {
         textField.setText(System.getenv("appdata") + "\\.minecraft\\saves");
-        textField.setText(Paths.get("testfiles").toAbsolutePath().toString());
+        //textField.setText(Paths.get("testfiles").toAbsolutePath().toString());
         //Because antlr uses System.err.println for smaller errors
         System.setErr(new PrintStream(System.err){
             @Override
@@ -121,7 +121,7 @@ public class CompileUIController {
             feedbackLabel.setTextFill(Color.GREEN);
             deleteAllButton.setDisable(filesNotGeneratedListView.getItems().isEmpty());
         } else {
-            feedbackLabel.setText("Invalid Path, please select a datapack as the directory (not the data folder)");
+            feedbackLabel.setText("Invalid Path, please select a datapack, or world as the directory (not the data folder)");
             feedbackLabel.setTextFill(Color.RED);
         }
         feedbackLabel.setVisible(true);
