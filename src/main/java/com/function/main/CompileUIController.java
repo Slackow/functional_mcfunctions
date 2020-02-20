@@ -100,7 +100,7 @@ public class CompileUIController {
                         .forEach(dir -> {
                             try {
                                 CompileStuff.compile(dir);
-                            } catch (IOException e) {
+                            } catch (Exception e) {
                                 e.printStackTrace();
                             }
                             allTouched.putAll(CompileStuff.allTouched);
@@ -114,10 +114,10 @@ public class CompileUIController {
                 allUntouched = CompileStuff.allUntouched;
             }
 
-            filesGeneratedListView.setItems(FXCollections.observableList(new ArrayList<>(allTouched.keySet())));
-            filesNotGeneratedListView.setItems(FXCollections.observableList(new ArrayList<>(allUntouched.keySet())));
+            filesGeneratedListView.setItems(FXCollections.observableList(new ArrayList<>(allTouched.keySet())).sorted());
+            filesNotGeneratedListView.setItems(FXCollections.observableList(new ArrayList<>(allUntouched.keySet())).sorted());
 
-            feedbackLabel.setText("Compiled " + allTouched.size() + " functions at " + LocalTime.now().format(DateTimeFormatter.ofPattern("h:mm:ss")));
+            feedbackLabel.setText("Compiled " + allTouched.size() + " functions at " + currentTime());
             feedbackLabel.setTextFill(Color.GREEN);
             deleteAllButton.setDisable(filesNotGeneratedListView.getItems().isEmpty());
         } else {
@@ -126,6 +126,10 @@ public class CompileUIController {
         }
         feedbackLabel.setVisible(true);
 
+    }
+
+    public static String currentTime() {
+        return LocalTime.now().format(DateTimeFormatter.ofPattern("h:mm:ss"));
     }
 
     @FXML
@@ -141,7 +145,7 @@ public class CompileUIController {
                 e.printStackTrace();
             }
         });
-        filesNotGeneratedListView.getItems().clear();
+        filesNotGeneratedListView.setItems(FXCollections.emptyObservableList());
         deleteAllButton.setDisable(true);
     }
 

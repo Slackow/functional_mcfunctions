@@ -12,6 +12,6 @@ public class CompileUI extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        FXMLLoader.<Stage>load(CompileUI.class.getResource("/fxml/CompileUI.fxml")).show();
+        FXMLLoader.<Stage>load(CompileUI.class.getResource("/CompileUI.fxml")).show();
     }
 }

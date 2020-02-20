@@ -1,3 +1,7 @@
+plugins {
+    id "com.github.johnrengelman.shadow" version "5.2.0"
+}
+
 group 'com.example.something'
 version '1.0'
 
@@ -24,4 +28,9 @@ jar {
                 'Main-Class': 'com.function.main.CompileUI'
         )
     }
+}
+
+shadowJar {
+   // mainClassName = 'com.function.main.CompileUI'
+    archiveBaseName.set 'functional_mcfunctions'
 }

@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +52,7 @@ public class CompileStuff {
     public static void compile(Path dir) throws IOException {
         allTouched.clear();
         allUntouched.clear();
-        LOGGER.info("Compiling: " + dir.getFileName() + " at " + LocalTime.now().format(DateTimeFormatter.ofPattern("h:mm:ss")));
+        LOGGER.info("Compiling: " + dir.getFileName() + " at " + CompileUIController.currentTime());
         List<Path> functions = getAllFilesInDataPack(dir, ".function")
                 .collect(Collectors.toList());
         Datapack datapack = new Datapack(dir, functions);

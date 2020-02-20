@@ -870,13 +870,13 @@ public class FunctionVisitor extends MainFunctionParserBaseVisitor<Value> {
         if (namespace.startsWith("/")) {
             namespace = current + namespace;
         } else {
-            int index = namespace.indexOf(':');
-            if (index == -1) {
-                namespace = current.substring(0, current.indexOf(':') + 1) + namespace;
+            if (!namespace.contains(":")) {
+                int index = Math.max(current.indexOf(':'), current.indexOf('/')) + 1;
+                namespace = current.substring(0, index) + namespace;
             }
         }
         if (!namespace.matches("[a-z_-][a-z\\d_-]*:[a-z_-][a-z\\d_-]*(/[a-z_-][a-z\\d_-]*)*"))
-            throw new EvalException("Bad Function name: " + namespace, ctx);
+            throw new EvalException("Bad Function name: " + namespace + " sub: " + current, ctx);
 
         genFunction(namespace, expr_block.stat_block());
 
@@ -931,13 +931,13 @@ public class FunctionVisitor extends MainFunctionParserBaseVisitor<Value> {
                 }
                 if (namespace.startsWith("/")) {
                     namespace = current + namespace;
-                } else {
-                    index = namespace.indexOf(':');
-                    if (index == -1) {
-                        namespace = current.substring(0, current.indexOf(':') + 1) + namespace;
-                    }
+                } else if (!namespace.contains(":")) {
+                    index = Math.max(current.indexOf(':'), current.lastIndexOf('/')) + 1;
+                    namespace = current.substring(0, index) + namespace;
                 }
             }
+            if (!namespace.matches("[a-z_-][a-z\\d_-]*:[a-z_-][a-z\\d_-]*(/[a-z_-][a-z\\d_-]*)*"))
+                throw new EvalException("Bad Function name: namespace: " + namespace + " sub: " + current, ctx);
             sb.append("function ");
             sb.append(namespace);
             if (extra.length() > 0) {
