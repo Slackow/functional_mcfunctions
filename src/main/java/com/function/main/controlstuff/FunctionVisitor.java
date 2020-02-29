@@ -831,11 +831,12 @@ public class FunctionVisitor extends MainFunctionParserBaseVisitor<Value> {
         Value object = this.visit(ctx.expr());
         String child = ctx.IDEN().getText();
 
-        if (ctx.QUESTION() != null && object == Value.NULL) {
+        Map<String, Value> properties = object.getProperties();
+        if (ctx.QUESTION() != null && (object == Value.NULL || !properties.containsKey(child))) {
             return Value.NULL;
         }
 
-        return object.getProperties().get(child);
+        return properties.get(child);
     }
 
 
