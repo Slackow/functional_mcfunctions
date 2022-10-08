@@ -3,7 +3,7 @@ This Project Serves as "compiler" for mcfunction files.
 The main point of this application is to allow functions to be defined inside of other functions. 
 
 
-Check the Wiki tab for more info on the syntax and functionality of this language.
+**<ins>Check the Wiki tab for more info on the syntax and functionality of this language.</ins>**
 
 Running the JAR file will open a JavaFX app that will allow you to compile files.
 You can either select a minecraft world's folder, to compile all
